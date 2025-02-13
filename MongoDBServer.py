@@ -35,14 +35,8 @@ def stemmeresultat():
         return jsonify([])
     
     sak = Voterings_Oversikt_Stortinget(sak_id)
-
-    #Dicts that returns 
+    
     oversikt, info, enstemmig_vedtatt = sak.resultat()
-
-    print(type(info))
-
-    
-    
     
     proposal = {}
 

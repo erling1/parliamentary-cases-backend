@@ -52,26 +52,20 @@ class Voterings_Oversikt_Stortinget:
 
 
         return (votering_id, votering_tema)
-    
-  
-            
+         
     def _saks_informasjon(self, voteringID: int, votering_tema: str):
 
         url = f"https://data.stortinget.no/eksport/voteringsforslag?voteringid={voteringID}"
         data_dict = self.get_response(url=url)
-
     
         # Since voteringsforslag is a list, we need to access its first element if we want just one proposal
         forslag_tekst = data_dict['voteringsforslag_oversikt']['voteringsforslag_liste']['voteringsforslag']
-
-       
 
         forslag_forslag_tekst_dict = {}
 
         # If forslag_tekst is a list
         if isinstance(forslag_tekst, list):
           
-
             forslag_forslag_tekst_dict[votering_tema] = []
             for i in range(len(forslag_tekst)):
 
@@ -86,28 +80,18 @@ class Voterings_Oversikt_Stortinget:
             # Just clean the single proposal text
             clean_text = re.sub('<[^<]+?>', '', forslag_tekst['forslag_tekst'])
 
-           
-            
             clean_text = ' '.join(clean_text.split())
 
-            
-
-
             forslag_forslag_tekst_dict[votering_tema] = clean_text
-
     
         return forslag_forslag_tekst_dict
 
 
 
     def resultat(self):
-        #SAK= 83657
         votering_ids, votering_temaer = self.finn_votering_id_tema()
         enstemmig_vedtatt = False
         
-
-       
-
         voterings_oversikt_sak_representanter = {}
         informasjon_om_hvertforslag = {}
 
@@ -117,11 +101,6 @@ class Voterings_Oversikt_Stortinget:
             data_dict = self.get_response(url=url)
 
             voteringsresultat_oversikt = data_dict['voteringsresultat_oversikt']
-
-
-            
-
-
 
             voteringsresultat_liste = voteringsresultat_oversikt['voteringsresultat_liste']
 
@@ -134,9 +113,6 @@ class Voterings_Oversikt_Stortinget:
                 continue
 
             representant_voteringsresultat = voteringsresultat_liste['representant_voteringsresultat']
-            
-
-            
 
             stemme = []
             representant = []
@@ -153,7 +129,6 @@ class Voterings_Oversikt_Stortinget:
 
             oversikt_dict = dict(navn=navn, parti=parti, votering=stemme)
 
-
             voterings_oversikt_sak_representanter[votering_temaer[idx]] = oversikt_dict
 
 
@@ -161,59 +136,4 @@ class Voterings_Oversikt_Stortinget:
 
             informasjon_om_hvertforslag[votering_temaer[idx]] = info_tekst_hvert_forslag[votering_temaer[idx]]
 
-        
-        
         return voterings_oversikt_sak_representanter, informasjon_om_hvertforslag, enstemmig_vedtatt
-
-#funker ikke: 97332
-
-
-#funker : 84119
-
-
-#test = Voterings_Oversikt_Stortinget(97332)
-
-#test.resultat()
-
-
-
-"""
-oversikt = test.resultat()[0]
-info = test.resultat()[1]
-    
-#if not oversikt:
-
-  
-proposal = {}
-    
-for key in oversikt.keys():
-
-    print('key', key)
-
-    voting_data = {
-            'representatives': [],
-            'information' : info,
-            'proposedBy' : 'proposed_by'
-        }
-        
-    print(oversikt[key]["navn"])
-
-    for i in range(len(oversikt[key]["navn"])):
-        rep = {
-                'name': oversikt[key]['navn'][i],
-                'party': oversikt[key]['parti'][i],
-                'vote': oversikt[key]['votering'][i]
-            }
-        voting_data['representatives'].append(rep)
-        
-    voting_data['voting_counts'] = {
-                        'for': sum(1 for rep in voting_data['representatives'] if rep.get('vote', '').lower() == 'for'),
-                        'mot': sum(1 for rep in voting_data['representatives'] if rep.get('vote', '').lower() == 'mot'),
-                        'ikke_tilstede': sum(1 for rep in voting_data['representatives'] if rep.get('vote', '').lower() == 'ikke_tilstede')
-                    }
-        
-    proposal[key] = voting_data
-print('keys: ', proposal.keys())
-
-print('proposal HEEEEELLLLLLOOOOOOO',proposal['Alternativ votering mellom innstillingen og forslagene 1-5 fra Ap, Sp og SV.']['voting_counts'])
-"""
